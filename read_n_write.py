@@ -79,8 +79,7 @@ def linear_regression(df):
     X=X.drop(['geo_area_code'], axis=1)
     missing=missing.drop(['geo_area_code'], axis=1)
 
-    # Split the data into training data and test data
-    X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=0.8)
+    
 
     # Perform cross-validation to find out how well the model can predict data
     reg = LinearRegression()
@@ -89,8 +88,7 @@ def linear_regression(df):
     print("Mean of scores of cross-validation:", np.mean(scores))
 
     # Construct the linear regression model
-    reg = LinearRegression().fit(X_train, y_train)
-    print("Score of linear regression on test data:", reg.score(X_test, y_test))
+    reg = LinearRegression().fit(X, y)
     
     # Predict the values of the missing data
     pd.set_option("display.max_rows", None, "display.max_columns", None)
