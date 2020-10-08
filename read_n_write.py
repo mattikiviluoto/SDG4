@@ -40,13 +40,18 @@ def principal(df, n_clusters=5, dimensions=2):
     # Scatter plot (first PC as x-axis, second PC as y-axis and third PC as point size (with some rescaling) and colours signifying clusters):
     labels = df.index.tolist()
     fig, ax = plt.subplots()
-    ax.scatter(Z[:,0], Z[:,1], s=4*(Z[:,2]+4), c=clusters.labels_)
+    ax.scatter(Z[:,0], Z[:,1], s=(Z[:,2]+5)**2, c=clusters.labels_)
     for i, lbl in enumerate(labels):
         rnd = 1+np.random.rand()/10-0.05
         cp = 'black'
         if (lbl == 'finland'):
             cp = 'blue'
         ax.annotate(lbl, xy=(Z[i,0], Z[i,1]), xytext=(Z[i,0], rnd*Z[i,1]), color=cp)  
+    plt.title(f"k-means clustering, with {n_clusters} clusters")
+    plt.text(-4.7, 3.7, "Point size as third principal component")
+    plt.text(-4.7, 3.4, f"(explains {r[2]:.2f} of variance)")
+    plt.xlabel(f"First principal component (explains {r[0]:.2f} of variance)")
+    plt.ylabel(f"Second principal component (explains {r[1]:.2f} of variance)")
     plt.show()    
 
 def transform(df):
@@ -60,7 +65,7 @@ def linear_regression(df):
     y, name = pd.read_csv("data_ICT.csv"), "Means of proportions of youth and adults with various ICT-skills"
     # y = pd.read_csv(".csv")
     # name = ""
-
+    
     # Drop countries from CIA dataframe that are not in SDG data
     X=df[df['geo_area_code'].isin(y['geoAreaCode'].to_numpy())]
     
@@ -79,12 +84,10 @@ def linear_regression(df):
     X=X.drop(['geo_area_code'], axis=1)
     missing=missing.drop(['geo_area_code'], axis=1)
 
-    
-
     # Perform cross-validation to find out how well the model can predict data
     reg = LinearRegression()
-    scores=cross_val_score(reg, X, y, cv=5, scoring='r2')
-    print("Scores of cross-validation:", scores)
+    scores=cross_val_score(reg, X, y, cv=3, scoring='r2')
+    print("\nScores of cross-validation:", scores)
     print("Mean of scores of cross-validation:", np.mean(scores))
 
     # Construct the linear regression model
@@ -115,7 +118,7 @@ def linear_regression(df):
     
 
 def main():
-    """This is a test program to give a 'proof-of-concept' for how to mine data from CIA factbook jsons."""
+    """This is a test program to give a 'proof-of-concept' for how to mine and combine data from CIA factbook and SDG jsons."""
 
     with open("factbook.json", "r", encoding='utf8', errors='ignore') as f:  
         factbook = json.load(f)["countries"]   # This creates a nested dictionary with all the data in a single .json
@@ -136,12 +139,12 @@ def main():
         "median_age",
         "population_growth",
         "birth_rate",
-        "death_rate",
+        # "death_rate",
         # "migration",
         "infant_mortality",
         "life_expectancy",
         # "fertility",
-        "literacy",
+        # "literacy",
         # "lit_men",
         # "lit_women",
 
@@ -149,13 +152,13 @@ def main():
 
         # "growth",
         "gdp",
-        # "agriculture",
+        "agriculture",
         # "industry",
-        # "services",
+        "services",
         # "unemployment",
-        "poverty",
-        # "low_decile",
-        # "high_decile",
+        # "poverty",
+        "low_decile",
+        "high_decile",
         # "revenues",
         # "expenditures",
         # "public_debt",
@@ -165,7 +168,7 @@ def main():
 
     # Military spending
 
-        "military",
+        # "military",
 
     # Transnational issues
 
@@ -178,19 +181,21 @@ def main():
 
     print("\nThe following were not found for Finland:",r.get_missing_data("finland")) # See which of the values were not in the factbook for finland.
 
-    unwanted_data = ["world","european_union"]
-    result = result.drop(unwanted_data)       # Get rid of unwanted data points. 
+    unwanted_data = ["world","european_union", "cameroon", "japan", "luxembourg", "zambia"]  # Manually choose regions not to be included in the analysis
+    result = result.drop(unwanted_data)         # Get rid of unwanted data points. 
     nr = len(result.index)
-    cropped_result = result.dropna()          # Get rid of data points, which contain NaN values.
+    cropped_result = result.dropna()            # Get rid of data points, which contain NaN values.
     nc = len(cropped_result.index)
     print("\n",(nr-nc),"results were dropped out of",nr,"because of missing data for a total of",nc,"data points.")
     print("\n Countries included in the analysis are:\n", list(cropped_result.index))
-    # Standardize data and perform PCA and k-means clustering. (This is the official playground!)
-    transformed = pd.DataFrame(transform(cropped_result), columns=cropped_result.columns, index=cropped_result.index)
-    principal(transformed, n_clusters=6, dimensions=5)
 
+    # Construct and analyze the linear regression model
     linear_regression(cropped_result)       
 
+    # Standardize data and perform PCA and k-means clustering. 
+    cropped_result = cropped_result.drop(['geo_area_code'], axis=1)   # Geo area codes are no longer needed.
+    transformed = pd.DataFrame(transform(cropped_result), columns=cropped_result.columns, index=cropped_result.index)
+    principal(transformed, n_clusters=3, dimensions=3)
+          
 if __name__ == "__main__":
     main()
-print("ok")
