@@ -35,7 +35,7 @@ def principal(df, n_clusters=5, dimensions=3):
     pca = PCA(dimensions)
     pca.fit(X)
     r = pca.explained_variance_ratio_
-    print("\nExplained variance ratio by principal components:",r,"explaining a total",sum(r),"of the total variance")
+    print("\nExplained variance ratio by principal components:",r,"explaining",sum(r),"of the total variance")
     Z=pca.transform(X)
     
     # Scatter plot (first PC as x-axis, second PC as y-axis and third PC as point size (with some rescaling) and colours signifying clusters):
@@ -77,6 +77,7 @@ def combine(df):
     
     # Drop countries drom SDG dataframe that are not in CIA data
     y=y[y['geoAreaCode'].isin(X['geo_area_code'].to_numpy())]
+    print("\nSVG data found for following countries:",list(y['Country']))
     
     # Save also the missing countries data from CIA data
     missing=df[~df['geo_area_code'].isin(y['geoAreaCode'].to_numpy())]
@@ -218,8 +219,8 @@ def main():
     with open("factbook.json", "r", encoding='utf8', errors='ignore') as f:  
         factbook = json.load(f)["countries"]   # This creates a nested dictionary with all the data in a single .json
 
-    r = Reader(factbook)     # A Reader object with a more accessible interface and unnecessary data filtered out.
-    result = r.read_data([   # A query to create a DataFrame from the interesting stuff. Comment out stuff you don't need.
+    r = Reader(factbook)   # A Reader object with a more accessible interface and unnecessary data filtered out.
+    data_query = [         # A query to create a DataFrame from the interesting stuff. Comment out stuff you don't need.
     
     # Geographic data 
 
@@ -269,20 +270,22 @@ def main():
 
         # "refugees",
         # "internal_refugees"
-    ]) 
+    ]
+    result = r.read_data(data_query)    # Pass the query to the Reader object
      
     cc = pd.read_csv("country_codes.csv", sep=";", index_col="country")   # Read country codes from a manually created .csv file.
     result = pd.merge(result, cc, how="inner", right_index=True, left_index=True)      # Add geoarea code to DataFrame result.
 
-    print("\nThe following were not found for Finland:",r.get_missing_data("finland")) # See which of the values were not in the factbook for finland.
+    print("\nThe following were not found for Finland:",r.get_missing_data("finland")) # See which values were not in the factbook for finland.
 
-    unwanted_data = ["world","european_union", "cameroon", "japan", "luxembourg", "zambia", "mongolia", "romania"]  
+    unwanted_data = ["world", "european_union", "cameroon", "japan", "luxembourg", "zambia", "mongolia", "romania"]  
     result = result.drop(unwanted_data)         # Manually choose regions not to be included in the analysis (larger entities or outliers)
     nr = len(result.index)
     cropped_result = result.dropna()            # Get rid of data points, which contain NaN values.
     nc = len(cropped_result.index)
-    print("\n",(nr-nc),"results were dropped out of",nr,"because of missing data for a total of",nc,"data points.")
-    print("\n Countries included in the analysis are:\n", list(cropped_result.index))
+    print("\n",(nr-nc),"results were dropped out of",nr,"because of missing data in CIA factbook for a total of",nc,"data points.")
+    print("\nCIA data with variables:",data_query,"\nfound for following countries:\n", list(cropped_result.index))
+    print("\nOutliers or larger regions manually left out:",unwanted_data)
 
     # Combine CIA factbook data with SDG data to form independent and dependent variables, as well as data to be used in predictions
     ind, dep, miss = combine(cropped_result)
