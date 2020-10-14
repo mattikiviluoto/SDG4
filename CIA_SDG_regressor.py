@@ -43,12 +43,12 @@ def principal(df, n_clusters=5, dimensions=3):
     fig, ax = plt.subplots()
     ax.scatter(Z[:,0], Z[:,1], s=(Z[:,2]+5)**2, c=clusters.labels_)
     for i, lbl in enumerate(labels):
-        rnd = 1+np.random.rand()/10-0.05
+        rnd = 1+np.random.rand()/10-0.05    # Add some randomness to labels, to minimize overlap 
         cp = 'black'
-        if (lbl == 'finland'):
+        if (lbl == 'finland'): 
             cp = 'blue'
         ax.annotate(lbl, xy=(Z[i,0], Z[i,1]), xytext=(Z[i,0], rnd*Z[i,1]), color=cp)  
-    plt.title(f"k-means clustering, with {n_clusters} clusters")
+    plt.title(f"Countries by chosen CIA variables in {n_clusters} clusters")
     plt.text(-4.7, 3.6, "Point size as third principal component")
     plt.text(-4.7, 3.4, f"(explains {r[2]:.2f} of variance)")
     plt.xlabel(f"First principal component (explains {r[0]:.2f} of variance)")
@@ -86,7 +86,7 @@ def combine(df):
     X=X.sort_values(by=['geo_area_code'])
     y=y.sort_values(by=['geoAreaCode'])
 
-    # Choose only wanted values from X and y to linear regression
+    # Choose only wanted values from X and y to be used in the regression model
     y=y['Value']
     X=X.drop(['geo_area_code'], axis=1)
     missing=missing.drop(['geo_area_code'], axis=1)
@@ -309,7 +309,7 @@ def main():
     # Standardize data and perform PCA and k-means clustering. 
     cropped_result = cropped_result.drop(['geo_area_code'], axis=1)   # Geo area codes are no longer needed.
     transformed = pd.DataFrame(transform(cropped_result), columns=cropped_result.columns, index=cropped_result.index)
-    principal(transformed, n_clusters=3, dimensions=3)
+    principal(transformed, n_clusters=3, dimensions=3)  # Choose the number of clusters and PCA-dimensions here.
             
 if __name__ == "__main__":
     main()
