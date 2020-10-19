@@ -29,4 +29,8 @@ Known Issues
 - There are some countries that due to political reasons are not statistically treated in the same way in the CIA factbook and the UN SDG data – most importantly Taiwan and Palestine
 - We did not have resources to fine tune the design of the visualizations at this point as they are made mainly for research purposes
 
-
+Acknowledgements
+The project was developed by three Helsinki University Computer Science Master's degree program students for a data science miniproject. 
+The team: Matti Kiviluoto, Juhani Kivimäki, Sebastian Lampinen from Helsinki, Finland
+When using our work, please mention the contributors.
+Use mattikiviluoto@gmail.com for any questions you may have.
