@@ -19,9 +19,9 @@ The Package
 - The user can freely choose both the explanatory variables from the CIA data and the SDG data to use as the target of either Linear Regression or Random Forest Regression.
 - Tools for exploratory data analysis are provided, including Principal Component Analysis and k-Means Clustering with user defined number of dimensions and clusters
 - Further options to narrow down the list of countries to analyze
-- We have used cross-validation to get an idea how accurately the predictive model will perform in practice, typically the Random Forest Regressor outperforms Linear Regression.
+- We have used cross-validation to get an idea how accurately the predictive model will perform in practice, typically the Random Forest Regressor outperforms Linear Regression.
 - Scatterplots of the real and predicted SDG values as y with each of the chosen explanatory variable as x for the chosen variables
-- Clear visualizations make it easy to detect outlier data points. These outliers can be excluded when building the regression model by user's discretion.
+- Clear visualizations make it easy to detect outlier data points. These outliers can be excluded when building the regression model by user's discretion.
 - The package will be made available for everyone to use and to contribute on GitHub
 
 Known Issues
